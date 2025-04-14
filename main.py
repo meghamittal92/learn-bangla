@@ -542,8 +542,12 @@ def main():
                     with word_cols[3]:
                         audio_button(word_row['Word'], "🔊", f"word_breakdown_{i}_{j}")
                     
-                    # Letter breakdown
-                    with st.expander(f"Letter breakdown for '{word_row['Word']}'"):
+                    # Letter breakdown - replace expander with a collapsible section using columns and dividers
+                    st.write(f"**Letter breakdown for '{word_row['Word']}':**")
+                    letter_toggle_key = f"toggle_letters_{i}_{j}"
+                    show_letters = st.checkbox("Show letters", key=letter_toggle_key)
+                    
+                    if show_letters:
                         st.write("**Letter-by-letter analysis:**")
                         for k, letter in enumerate(word_row['Letters']):
                             letter_cols = st.columns([1, 1.5, 1.5, 1])
