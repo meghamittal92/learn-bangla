@@ -43,9 +43,11 @@ def get_audio_html(audio_path):
     '''
     return audio_html
 
-def audio_button(text, label="Listen"):
+def audio_button(text, label="Listen", index=None):
     """Create a button that plays audio when clicked"""
-    if st.button(f"{label} 🔊", key=f"btn_{hash(text)}"):
+    # Create a unique key using both the text and index (if provided)
+    key_suffix = f"{hash(text)}_{index}" if index is not None else f"{hash(text)}_{id(text)}"
+    if st.button(f"{label} 🔊", key=f"btn_{key_suffix}"):
         with st.spinner('Generating audio...'):
             audio_path = text_to_speech(text)
             if audio_path:
@@ -117,7 +119,7 @@ def main():
             with col3:
                 st.write(f"**Similar to Hindi:** {row['Similar to Hindi']}")
             with col4:
-                audio_button(row['Letter'], "🔊")
+                audio_button(row['Letter'], "🔊", i)
         
         st.subheader("Vowels and Vowel Signs:")
         vowels = [
@@ -370,7 +372,7 @@ def main():
             col1, col2 = st.columns([1, 1])
             with col1:
                 st.markdown(f"**Bengali:** {bengali}")
-                audio_button(bengali, "Listen to Bengali 🔊")
+                audio_button(bengali, "Listen to Bengali 🔊", i)
             with col2:
                 st.markdown(f"**English:** {english}")
         
