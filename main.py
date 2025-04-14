@@ -391,91 +391,171 @@ def main():
             """)
             
             key_phrases = [
-                {"Bengali": "একদিন এক রাজা ছিলেন", "Pronunciation": "ekdin ek raja chhilen", "Meaning": "Once there was a king", 
+                {"Bengali": "একদিন এক রাজা ছিলেন", "Pronunciation": "ekdin ek raja chhilen", "Meaning": "Once there was a king", "Hindi": "एक दिन एक राजा था", 
                  "Breakdown": [
-                     {"Word": "একদিন", "Meaning": "one day", "Note": "এক (ek) = one + দিন (din) = day"},
-                     {"Word": "এক", "Meaning": "a/one", "Note": "indefinite article"},
-                     {"Word": "রাজা", "Meaning": "king", "Note": "similar to Hindi राजा (raja)"},
-                     {"Word": "ছিলেন", "Meaning": "was/were (formal)", "Note": "past tense of थे/था in Hindi"}
+                     {"Word": "একদিন", "Meaning": "one day", "Hindi": "एक दिन", "Note": "এক (ek) = one + দিন (din) = day", 
+                      "Letters": [{"Letter": "এ", "Type": "consonant", "Sound": "e"}, {"Letter": "ক", "Type": "consonant", "Sound": "k"}, 
+                                 {"Letter": "দ", "Type": "consonant", "Sound": "d"}, {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}, 
+                                 {"Letter": "ন", "Type": "consonant", "Sound": "n"}]},
+                     {"Word": "এক", "Meaning": "a/one", "Hindi": "एक", "Note": "indefinite article", 
+                      "Letters": [{"Letter": "এ", "Type": "consonant", "Sound": "e"}, {"Letter": "ক", "Type": "consonant", "Sound": "k"}]},
+                     {"Word": "রাজা", "Meaning": "king", "Hindi": "राजा", "Note": "similar to Hindi राजा (raja)", 
+                      "Letters": [{"Letter": "র", "Type": "consonant", "Sound": "r"}, {"Letter": "া", "Type": "vowel sign", "Sound": "a"}, 
+                                 {"Letter": "জ", "Type": "consonant", "Sound": "j"}, {"Letter": "া", "Type": "vowel sign", "Sound": "a"}]},
+                     {"Word": "ছিলেন", "Meaning": "was/were (formal)", "Hindi": "थे (सम्मानित)", "Note": "past tense", 
+                      "Letters": [{"Letter": "ছ", "Type": "consonant", "Sound": "chh"}, {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}, 
+                                 {"Letter": "ল", "Type": "consonant", "Sound": "l"}, {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}, 
+                                 {"Letter": "ন", "Type": "consonant", "Sound": "n"}]}
                  ]},
-                {"Bengali": "তাঁর তিনটি ছেলে ছিল", "Pronunciation": "tar tinti chhele chhilo", "Meaning": "He had three sons", 
+                {"Bengali": "তাঁর তিনটি ছেলে ছিল", "Pronunciation": "tar tinti chhele chhilo", "Meaning": "He had three sons", "Hindi": "उसके तीन बेटे थे", 
                  "Breakdown": [
-                     {"Word": "তাঁর", "Meaning": "his/her (formal)", "Note": "possessive pronoun, respectful form"},
-                     {"Word": "তিনটি", "Meaning": "three", "Note": "তিন (tin) = three + টি (ti) = counter/classifier"},
-                     {"Word": "ছেলে", "Meaning": "boy/son", "Note": "similar to छोरा in some Hindi dialects"},
-                     {"Word": "ছিল", "Meaning": "was/were (informal)", "Note": "past tense, informal form"}
+                     {"Word": "তাঁর", "Meaning": "his/her (formal)", "Hindi": "उसका/उसकी (सम्मानित)", "Note": "possessive pronoun, respectful form", 
+                      "Letters": [{"Letter": "ত", "Type": "consonant", "Sound": "t"}, {"Letter": "া", "Type": "vowel sign", "Sound": "a"}, 
+                                 {"Letter": "ঁ", "Type": "diacritic", "Sound": "nasalization"}, {"Letter": "র", "Type": "consonant", "Sound": "r"}]},
+                     {"Word": "তিনটি", "Meaning": "three", "Hindi": "तीन", "Note": "তিন (tin) = three + টি (ti) = counter/classifier", 
+                      "Letters": [{"Letter": "ত", "Type": "consonant", "Sound": "t"}, {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}, 
+                                 {"Letter": "ন", "Type": "consonant", "Sound": "n"}, {"Letter": "ট", "Type": "consonant", "Sound": "T"}, 
+                                 {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}]},
+                     {"Word": "ছেলে", "Meaning": "boy/son", "Hindi": "लड़का/बेटा", "Note": "similar to छोरा in some Hindi dialects", 
+                      "Letters": [{"Letter": "ছ", "Type": "consonant", "Sound": "chh"}, {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}, 
+                                 {"Letter": "ল", "Type": "consonant", "Sound": "l"}, {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}]},
+                     {"Word": "ছিল", "Meaning": "was/were (informal)", "Hindi": "था/थे", "Note": "past tense, informal form", 
+                      "Letters": [{"Letter": "ছ", "Type": "consonant", "Sound": "chh"}, {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}, 
+                                 {"Letter": "ল", "Type": "consonant", "Sound": "l"}]}
                  ]},
-                {"Bengali": "বনে যাও", "Pronunciation": "bone jao", "Meaning": "Go to the forest", 
+                {"Bengali": "বনে যাও", "Pronunciation": "bone jao", "Meaning": "Go to the forest", "Hindi": "जंगल में जाओ", 
                  "Breakdown": [
-                     {"Word": "বনে", "Meaning": "in the forest", "Note": "বন (bon) = forest + এ (e) = locative case ending"},
-                     {"Word": "যাও", "Meaning": "go", "Note": "imperative form of যাওয়া (jaowa) = to go"}
+                     {"Word": "বনে", "Meaning": "in the forest", "Hindi": "जंगल में", "Note": "বন (bon) = forest + এ (e) = locative case ending", 
+                      "Letters": [{"Letter": "ব", "Type": "consonant", "Sound": "b"}, {"Letter": "ন", "Type": "consonant", "Sound": "n"}, 
+                                 {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}]},
+                     {"Word": "যাও", "Meaning": "go", "Hindi": "जाओ", "Note": "imperative form of যাওয়া (jaowa) = to go", 
+                      "Letters": [{"Letter": "য", "Type": "consonant", "Sound": "j"}, {"Letter": "া", "Type": "vowel sign", "Sound": "a"}, 
+                                 {"Letter": "ও", "Type": "vowel", "Sound": "o"}]}
                  ]},
-                {"Bengali": "কিছু দেখে এসো", "Pronunciation": "kichhu dekhe esho", "Meaning": "See something and come back", 
+                {"Bengali": "কিছু দেখে এসো", "Pronunciation": "kichhu dekhe esho", "Meaning": "See something and come back", "Hindi": "कुछ देखकर आओ", 
                  "Breakdown": [
-                     {"Word": "কিছু", "Meaning": "something", "Note": "similar to कुछ (kuchh) in Hindi"},
-                     {"Word": "দেখে", "Meaning": "seeing/having seen", "Note": "perfective participle of দেখা (dekha) = to see"},
-                     {"Word": "এসো", "Meaning": "come back", "Note": "imperative form of আসা (asha) = to come"}
+                     {"Word": "কিছু", "Meaning": "something", "Hindi": "कुछ", "Note": "similar to कुछ (kuchh) in Hindi", 
+                      "Letters": [{"Letter": "ক", "Type": "consonant", "Sound": "k"}, {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}, 
+                                 {"Letter": "ছ", "Type": "consonant", "Sound": "chh"}, {"Letter": "ু", "Type": "vowel sign", "Sound": "u"}]},
+                     {"Word": "দেখে", "Meaning": "seeing/having seen", "Hindi": "देखकर", "Note": "perfective participle of দেখা (dekha) = to see", 
+                      "Letters": [{"Letter": "দ", "Type": "consonant", "Sound": "d"}, {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}, 
+                                 {"Letter": "খ", "Type": "consonant", "Sound": "kh"}, {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}]},
+                     {"Word": "এসো", "Meaning": "come back", "Hindi": "आओ", "Note": "imperative form of আসা (asha) = to come", 
+                      "Letters": [{"Letter": "এ", "Type": "vowel", "Sound": "e"}, {"Letter": "স", "Type": "consonant", "Sound": "s"}, 
+                                 {"Letter": "ো", "Type": "vowel sign", "Sound": "o"}]}
                  ]},
-                {"Bengali": "সোনার পাখি", "Pronunciation": "shonar pakhi", "Meaning": "Golden bird", 
+                {"Bengali": "সোনার পাখি", "Pronunciation": "shonar pakhi", "Meaning": "Golden bird", "Hindi": "सोने का पक्षी", 
                  "Breakdown": [
-                     {"Word": "সোনার", "Meaning": "golden/of gold", "Note": "সোনা (shona) = gold + র (r) = possessive marker"},
-                     {"Word": "পাখি", "Meaning": "bird", "Note": "similar to पंछी (panchhi) in Hindi"}
+                     {"Word": "সোনার", "Meaning": "golden/of gold", "Hindi": "सोने का", "Note": "সোনা (shona) = gold + র (r) = possessive marker", 
+                      "Letters": [{"Letter": "স", "Type": "consonant", "Sound": "sh/s"}, {"Letter": "ো", "Type": "vowel sign", "Sound": "o"}, 
+                                 {"Letter": "ন", "Type": "consonant", "Sound": "n"}, {"Letter": "া", "Type": "vowel sign", "Sound": "a"}, 
+                                 {"Letter": "র", "Type": "consonant", "Sound": "r"}]},
+                     {"Word": "পাখি", "Meaning": "bird", "Hindi": "पक्षी", "Note": "similar to पंछी (panchhi) in Hindi", 
+                      "Letters": [{"Letter": "প", "Type": "consonant", "Sound": "p"}, {"Letter": "া", "Type": "vowel sign", "Sound": "a"}, 
+                                 {"Letter": "খ", "Type": "consonant", "Sound": "kh"}, {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}]}
                  ]},
-                {"Bengali": "বাড়ি ফিরে এসে", "Pronunciation": "bari fire eshe", "Meaning": "Having returned home", 
+                {"Bengali": "বাড়ি ফিরে এসে", "Pronunciation": "bari fire eshe", "Meaning": "Having returned home", "Hindi": "घर लौटकर", 
                  "Breakdown": [
-                     {"Word": "বাড়ি", "Meaning": "home/house", "Note": "similar to बाड़ी in some Hindi dialects"},
-                     {"Word": "ফিরে", "Meaning": "having returned", "Note": "perfective participle of ফেরা (phera) = to return"},
-                     {"Word": "এসে", "Meaning": "having come", "Note": "perfective participle of আসা (asha) = to come"}
+                     {"Word": "বাড়ি", "Meaning": "home/house", "Hindi": "घर", "Note": "similar to बाड़ी in some Hindi dialects", 
+                      "Letters": [{"Letter": "ব", "Type": "consonant", "Sound": "b"}, {"Letter": "া", "Type": "vowel sign", "Sound": "a"}, 
+                                 {"Letter": "ড", "Type": "consonant", "Sound": "d/r"}, {"Letter": "়", "Type": "diacritic", "Sound": "modification"}, 
+                                 {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}]},
+                     {"Word": "ফিরে", "Meaning": "having returned", "Hindi": "लौटकर", "Note": "perfective participle of ফেরা (phera) = to return", 
+                      "Letters": [{"Letter": "ফ", "Type": "consonant", "Sound": "ph"}, {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}, 
+                                 {"Letter": "র", "Type": "consonant", "Sound": "r"}, {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}]},
+                     {"Word": "এসে", "Meaning": "having come", "Hindi": "आकर", "Note": "perfective participle of আসা (asha) = to come", 
+                      "Letters": [{"Letter": "এ", "Type": "vowel", "Sound": "e"}, {"Letter": "স", "Type": "consonant", "Sound": "s"}, 
+                                 {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}]}
                  ]},
-                {"Bengali": "সোনার ফল খেয়েছি", "Pronunciation": "shonar fol kheyechhi", "Meaning": "I ate a golden fruit", 
+                {"Bengali": "সোনার ফল খেয়েছি", "Pronunciation": "shonar fol kheyechhi", "Meaning": "I ate a golden fruit", "Hindi": "मैंने सोने का फल खाया है", 
                  "Breakdown": [
-                     {"Word": "সোনার", "Meaning": "golden/of gold", "Note": "সোনা (shona) = gold + র (r) = possessive marker"},
-                     {"Word": "ফল", "Meaning": "fruit", "Note": "similar to फल (phal) in Hindi"},
-                     {"Word": "খেয়েছি", "Meaning": "I have eaten", "Note": "present perfect of খাওয়া (khaowa) = to eat, 1st person"}
+                     {"Word": "সোনার", "Meaning": "golden/of gold", "Hindi": "सोने का", "Note": "সোনা (shona) = gold + র (r) = possessive marker", 
+                      "Letters": [{"Letter": "স", "Type": "consonant", "Sound": "sh/s"}, {"Letter": "ো", "Type": "vowel sign", "Sound": "o"}, 
+                                 {"Letter": "ন", "Type": "consonant", "Sound": "n"}, {"Letter": "া", "Type": "vowel sign", "Sound": "a"}, 
+                                 {"Letter": "র", "Type": "consonant", "Sound": "r"}]},
+                     {"Word": "ফল", "Meaning": "fruit", "Hindi": "फल", "Note": "similar to फल (phal) in Hindi", 
+                      "Letters": [{"Letter": "ফ", "Type": "consonant", "Sound": "ph"}, {"Letter": "ল", "Type": "consonant", "Sound": "l"}]},
+                     {"Word": "খেয়েছি", "Meaning": "I have eaten", "Hindi": "मैंने खाया है", "Note": "present perfect of খাওয়া (khaowa) = to eat, 1st person", 
+                      "Letters": [{"Letter": "খ", "Type": "consonant", "Sound": "kh"}, {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}, 
+                                 {"Letter": "য", "Type": "consonant", "Sound": "y"}, {"Letter": "়", "Type": "diacritic", "Sound": "modification"}, 
+                                 {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}, {"Letter": "ছ", "Type": "consonant", "Sound": "chh"}, 
+                                 {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}]}
                  ]},
-                {"Bengali": "অনেক মূল্যবান", "Pronunciation": "onek mulloban", "Meaning": "Very valuable", 
+                {"Bengali": "অনেক মূল্যবান", "Pronunciation": "onek mulloban", "Meaning": "Very valuable", "Hindi": "बहुत मूल्यवान", 
                  "Breakdown": [
-                     {"Word": "অনেক", "Meaning": "very/much", "Note": "similar to अनेक (anek) in Hindi"},
-                     {"Word": "মূল্যবান", "Meaning": "valuable", "Note": "মূল্য (mullo) = value + বান (ban) = possessing"}
+                     {"Word": "অনেক", "Meaning": "very/much", "Hindi": "बहुत", "Note": "similar to अनेक (anek) in Hindi", 
+                      "Letters": [{"Letter": "অ", "Type": "vowel", "Sound": "o"}, {"Letter": "ন", "Type": "consonant", "Sound": "n"}, 
+                                 {"Letter": "ে", "Type": "vowel sign", "Sound": "e"}, {"Letter": "ক", "Type": "consonant", "Sound": "k"}]},
+                     {"Word": "মূল্যবান", "Meaning": "valuable", "Hindi": "मूल्यवान", "Note": "মূল্য (mullo) = value + বান (ban) = possessing", 
+                      "Letters": [{"Letter": "ম", "Type": "consonant", "Sound": "m"}, {"Letter": "ূ", "Type": "vowel sign", "Sound": "u"}, 
+                                 {"Letter": "ল", "Type": "consonant", "Sound": "l"}, {"Letter": "্", "Type": "diacritic", "Sound": "virama"}, 
+                                 {"Letter": "য", "Type": "consonant", "Sound": "y"}, {"Letter": "ব", "Type": "consonant", "Sound": "b"}, 
+                                 {"Letter": "া", "Type": "vowel sign", "Sound": "a"}, {"Letter": "ন", "Type": "consonant", "Sound": "n"}]}
                  ]},
-                {"Bengali": "সোনার কথা", "Pronunciation": "shonar kotha", "Meaning": "Golden words", 
+                {"Bengali": "সোনার কথা", "Pronunciation": "shonar kotha", "Meaning": "Golden words", "Hindi": "सोने के शब्द", 
                  "Breakdown": [
-                     {"Word": "সোনার", "Meaning": "golden/of gold", "Note": "সোনা (shona) = gold + র (r) = possessive marker"},
-                     {"Word": "কথা", "Meaning": "words/speech", "Note": "similar to कथा (katha) in Hindi"}
+                     {"Word": "সোনার", "Meaning": "golden/of gold", "Hindi": "सोने के", "Note": "সোনা (shona) = gold + র (r) = possessive marker", 
+                      "Letters": [{"Letter": "স", "Type": "consonant", "Sound": "sh/s"}, {"Letter": "ো", "Type": "vowel sign", "Sound": "o"}, 
+                                 {"Letter": "ন", "Type": "consonant", "Sound": "n"}, {"Letter": "া", "Type": "vowel sign", "Sound": "a"}, 
+                                 {"Letter": "র", "Type": "consonant", "Sound": "r"}]},
+                     {"Word": "কথা", "Meaning": "words/speech", "Hindi": "शब्द/बात", "Note": "similar to कथा (katha) in Hindi", 
+                      "Letters": [{"Letter": "ক", "Type": "consonant", "Sound": "k"}, {"Letter": "থ", "Type": "consonant", "Sound": "th"}, 
+                                 {"Letter": "া", "Type": "vowel sign", "Sound": "a"}]}
                  ]},
-                {"Bengali": "খুব খুশি", "Pronunciation": "khub khushi", "Meaning": "Very happy", 
+                {"Bengali": "খুব খুশি", "Pronunciation": "khub khushi", "Meaning": "Very happy", "Hindi": "बहुत खुश", 
                  "Breakdown": [
-                     {"Word": "খুব", "Meaning": "very", "Note": "similar to खूब (khub) in Hindi"},
-                     {"Word": "খুশি", "Meaning": "happy", "Note": "similar to खुशी (khushi) in Hindi"}
+                     {"Word": "খুব", "Meaning": "very", "Hindi": "बहुत", "Note": "similar to खूब (khub) in Hindi", 
+                      "Letters": [{"Letter": "খ", "Type": "consonant", "Sound": "kh"}, {"Letter": "ু", "Type": "vowel sign", "Sound": "u"}, 
+                                 {"Letter": "ব", "Type": "consonant", "Sound": "b"}]},
+                     {"Word": "খুশি", "Meaning": "happy", "Hindi": "खुश", "Note": "similar to खुशी (khushi) in Hindi", 
+                      "Letters": [{"Letter": "খ", "Type": "consonant", "Sound": "kh"}, {"Letter": "ু", "Type": "vowel sign", "Sound": "u"}, 
+                                 {"Letter": "শ", "Type": "consonant", "Sound": "sh"}, {"Letter": "ি", "Type": "vowel sign", "Sound": "i"}]}
                  ]},
             ]
             
             # Display phrases with sound buttons and word breakdowns
             for i, row in pd.DataFrame(key_phrases).iterrows():
                 st.markdown(f"### {i+1}. {row['Bengali']}")
-                col1, col2, col3 = st.columns([2, 3, 1])
-                with col1:
+                cols = st.columns([2, 2, 2, 1])
+                with cols[0]:
                     st.write(f"**Pronunciation:** {row['Pronunciation']}")
-                with col2:
+                with cols[1]:
                     st.write(f"**Meaning:** {row['Meaning']}")
-                with col3:
+                with cols[2]:
+                    st.write(f"**Hindi:** {row['Hindi']}")
+                with cols[3]:
                     audio_button(row['Bengali'], "🔊", f"key_phrase_{i}")
                 
                 # Word-by-word breakdown
                 st.write("**Word-by-word breakdown:**")
                 breakdown_data = row['Breakdown']
-                breakdown_df = pd.DataFrame(breakdown_data)
                 
-                for j, word_row in breakdown_df.iterrows():
-                    word_col1, word_col2, word_col3, word_col4 = st.columns([1.5, 2, 2.5, 1])
-                    with word_col1:
-                        st.markdown(f"**{word_row['Word']}**")
-                    with word_col2:
-                        st.write(f"Meaning: {word_row['Meaning']}")
-                    with word_col3:
-                        st.write(f"Note: {word_row['Note']}")
-                    with word_col4:
+                for j, word_row in enumerate(breakdown_data):
+                    st.markdown(f"##### {word_row['Word']}")
+                    word_cols = st.columns([1.5, 1.5, 2, 1])
+                    with word_cols[0]:
+                        st.write(f"**Meaning:** {word_row['Meaning']}")
+                    with word_cols[1]:
+                        st.write(f"**Hindi:** {word_row['Hindi']}")
+                    with word_cols[2]:
+                        st.write(f"**Note:** {word_row['Note']}")
+                    with word_cols[3]:
                         audio_button(word_row['Word'], "🔊", f"word_breakdown_{i}_{j}")
+                    
+                    # Letter breakdown
+                    with st.expander(f"Letter breakdown for '{word_row['Word']}'"):
+                        st.write("**Letter-by-letter analysis:**")
+                        for k, letter in enumerate(word_row['Letters']):
+                            letter_cols = st.columns([1, 1.5, 1.5, 1])
+                            with letter_cols[0]:
+                                st.markdown(f"**{letter['Letter']}**")
+                            with letter_cols[1]:
+                                st.write(f"Type: {letter['Type']}")
+                            with letter_cols[2]:
+                                st.write(f"Sound: {letter['Sound']}")
+                            with letter_cols[3]:
+                                if letter['Letter'] and len(letter['Letter']) == 1:
+                                    audio_button(letter['Letter'], "🔊", f"letter_{i}_{j}_{k}")
                 
                 st.markdown("---")
             
