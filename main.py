@@ -5,6 +5,7 @@ from gtts import gTTS
 import os
 import tempfile
 import time
+import hashlib
 
 def text_to_speech(text, lang='bn'):
     """Convert text to speech using gTTS and return the audio file path"""
@@ -43,12 +44,14 @@ def get_audio_html(audio_path):
     '''
     return audio_html
 
-import uuid
-
-def audio_button(text, label="Listen", index=None):
+def audio_button(text, label="Listen", section="general"):
     """Create a button that plays audio when clicked"""
-    # Generate a unique UUID for each button
-    button_key = f"btn_{uuid.uuid4()}"
+    # Create a deterministic but unique hash based on text and section
+    # This ensures the same text in different sections gets different keys
+    hash_input = f"{section}_{text}"
+    hashed_key = hashlib.md5(hash_input.encode()).hexdigest()
+    button_key = f"btn_{hashed_key}"
+    
     if st.button(f"{label} 🔊", key=button_key):
         with st.spinner('Generating audio...'):
             audio_path = text_to_speech(text)
@@ -84,7 +87,7 @@ def main():
         
         st.subheader("Listen to the Introduction in Bengali:")
         intro_text = "বাংলা শেখার অ্যাপে আপনাকে স্বাগতম। এই অ্যাপের মাধ্যমে আপনি একটি সহজ বাংলা গল্প দিয়ে বাংলা শিখতে পারবেন।"
-        audio_button(intro_text, "Listen to Introduction")
+        audio_button(intro_text, "Listen to Introduction", "intro_section")
         
         st.image("https://via.placeholder.com/600x400.png?text=Bengali+Learning", caption="Learn Bengali")
     
@@ -121,7 +124,7 @@ def main():
             with col3:
                 st.write(f"**Similar to Hindi:** {row['Similar to Hindi']}")
             with col4:
-                audio_button(row['Letter'], "🔊", i)
+                audio_button(row['Letter'], "🔊", f"letter_{i}")
         
         st.subheader("Vowels and Vowel Signs:")
         vowels = [
@@ -144,7 +147,7 @@ def main():
             with col4:
                 st.write(f"**Example:** {row['Example']}")
             with col5:
-                audio_button(row['Example'], "🔊")
+                audio_button(row['Example'], "🔊", f"vowel_{i}")
         
         st.subheader("Special Characters:")
         special = [
@@ -165,7 +168,7 @@ def main():
             with col4:
                 st.write(f"**Example:** {row['Example']}")
             with col5:
-                audio_button(row['Example'], "🔊")
+                audio_button(row['Example'], "🔊", f"special_{i}")
         
         st.subheader("Practice Pronouncing")
         with st.expander("Click to expand pronunciation guide"):
@@ -193,7 +196,7 @@ def main():
                 with col2:
                     st.write(f"**Pronunciation:** {row['Pronunciation']}")
                 with col3:
-                    audio_button(row['Combo'], "🔊", i)
+                    audio_button(row['Combo'], "🔊", f"combo_{i}")
     
     with tab3:
         st.header("Important Words in Our Story")
@@ -225,7 +228,7 @@ def main():
             with col3:
                 st.write(f"**Meaning:** {row['Meaning']}")
             with col4:
-                audio_button(row['Bengali'], "🔊")
+                audio_button(row['Bengali'], "🔊", f"word_{i}")
         
         st.subheader("Useful Phrases")
         phrases = [
@@ -246,7 +249,7 @@ def main():
             with col3:
                 st.write(f"**Meaning:** {row['Meaning']}")
             with col4:
-                audio_button(row['Bengali'], "🔊")
+                audio_button(row['Bengali'], "🔊", f"phrase_{i}")
     
     with tab4:
         st.header("Basic Bengali Grammar")
@@ -264,7 +267,7 @@ def main():
         with col1:
             st.write("**Listen to the example:**")
         with col2:
-            audio_button("আমি বই পড়ি", "🔊")
+            audio_button("আমি বই পড়ি", "🔊", "grammar_example")
         
         st.subheader("Verb Forms")
         st.write("""
@@ -288,7 +291,7 @@ def main():
             with col3:
                 st.write(f"**Meaning:** {row['Meaning']}")
             with col4:
-                audio_button(row['Bengali'], "🔊")
+                audio_button(row['Bengali'], "🔊", f"verb_present_{i}")
         
         st.write("""
         Past tense example:
@@ -309,7 +312,7 @@ def main():
             with col3:
                 st.write(f"**Meaning:** {row['Meaning']}")
             with col4:
-                audio_button(row['Bengali'], "🔊")
+                audio_button(row['Bengali'], "🔊", f"verb_past_{i}")
         
         st.subheader("Postpositions")
         st.write("""
@@ -331,7 +334,7 @@ def main():
             with col3:
                 st.write(f"**Meaning:** {row['Meaning']}")
             with col4:
-                audio_button(row['Bengali'], "🔊")
+                audio_button(row['Bengali'], "🔊", f"postpos_{i}")
         
     with tab5:
         st.header("রাজা ও তিনটি ছেলে (The King and His Three Sons)")
@@ -374,13 +377,13 @@ def main():
             col1, col2 = st.columns([1, 1])
             with col1:
                 st.markdown(f"**Bengali:** {bengali}")
-                audio_button(bengali, "Listen to Bengali 🔊", i)
+                audio_button(bengali, "Listen to Bengali 🔊", f"story_line_{i}")
             with col2:
                 st.markdown(f"**English:** {english}")
         
         st.subheader("Listen to the Full Story")
         full_story = " ".join(story_lines)
-        audio_button(full_story, "Listen to Full Story 🔊")
+        audio_button(full_story, "Listen to Full Story 🔊", "full_story")
             
         with st.expander("Vocabulary Breakdown"):
             st.write("""
@@ -409,7 +412,7 @@ def main():
                 with col3:
                     st.write(f"**Meaning:** {row['Meaning']}")
                 with col4:
-                    audio_button(row['Bengali'], "🔊")
+                    audio_button(row['Bengali'], "🔊", f"key_phrase_{i}")
             
         st.subheader("Practice Reading")
         st.write("Try reading the story line by line, using the pronunciation guide and audio buttons for help.")
