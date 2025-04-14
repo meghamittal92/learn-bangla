@@ -43,11 +43,13 @@ def get_audio_html(audio_path):
     '''
     return audio_html
 
+import uuid
+
 def audio_button(text, label="Listen", index=None):
     """Create a button that plays audio when clicked"""
-    # Create a unique key using both the text and index (if provided)
-    key_suffix = f"{hash(text)}_{index}" if index is not None else f"{hash(text)}_{id(text)}"
-    if st.button(f"{label} 🔊", key=f"btn_{key_suffix}"):
+    # Generate a unique UUID for each button
+    button_key = f"btn_{uuid.uuid4()}"
+    if st.button(f"{label} 🔊", key=button_key):
         with st.spinner('Generating audio...'):
             audio_path = text_to_speech(text)
             if audio_path:
