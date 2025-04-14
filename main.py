@@ -191,7 +191,7 @@ def main():
                 with col2:
                     st.write(f"**Pronunciation:** {row['Pronunciation']}")
                 with col3:
-                    audio_button(row['Combo'], "🔊")
+                    audio_button(row['Combo'], "🔊", i)
     
     with tab3:
         st.header("Important Words in Our Story")
