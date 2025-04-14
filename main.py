@@ -387,32 +387,97 @@ def main():
             
         with st.expander("Vocabulary Breakdown"):
             st.write("""
-            Key phrases and their meaning:
+            Key phrases from the story with detailed word-by-word breakdown:
             """)
             
             key_phrases = [
-                {"Bengali": "একদিন এক রাজা ছিলেন", "Pronunciation": "ekdin ek raja chhilen", "Meaning": "Once there was a king"},
-                {"Bengali": "তাঁর তিনটি ছেলে ছিল", "Pronunciation": "tar tinti chhele chhilo", "Meaning": "He had three sons"},
-                {"Bengali": "বনে যাও", "Pronunciation": "bone jao", "Meaning": "Go to the forest"},
-                {"Bengali": "কিছু দেখে এসো", "Pronunciation": "kichhu dekhe esho", "Meaning": "See something and come back"},
-                {"Bengali": "সোনার পাখি", "Pronunciation": "shonar pakhi", "Meaning": "Golden bird"},
-                {"Bengali": "বাড়ি ফিরে এসে", "Pronunciation": "bari fire eshe", "Meaning": "Having returned home"},
-                {"Bengali": "সোনার ফল খেয়েছি", "Pronunciation": "shonar fol kheyechhi", "Meaning": "I ate a golden fruit"},
-                {"Bengali": "অনেক মূল্যবান", "Pronunciation": "onek mulloban", "Meaning": "Very valuable"},
-                {"Bengali": "সোনার কথা", "Pronunciation": "shonar kotha", "Meaning": "Golden words"},
-                {"Bengali": "খুব খুশি", "Pronunciation": "khub khushi", "Meaning": "Very happy"},
+                {"Bengali": "একদিন এক রাজা ছিলেন", "Pronunciation": "ekdin ek raja chhilen", "Meaning": "Once there was a king", 
+                 "Breakdown": [
+                     {"Word": "একদিন", "Meaning": "one day", "Note": "এক (ek) = one + দিন (din) = day"},
+                     {"Word": "এক", "Meaning": "a/one", "Note": "indefinite article"},
+                     {"Word": "রাজা", "Meaning": "king", "Note": "similar to Hindi राजा (raja)"},
+                     {"Word": "ছিলেন", "Meaning": "was/were (formal)", "Note": "past tense of थे/था in Hindi"}
+                 ]},
+                {"Bengali": "তাঁর তিনটি ছেলে ছিল", "Pronunciation": "tar tinti chhele chhilo", "Meaning": "He had three sons", 
+                 "Breakdown": [
+                     {"Word": "তাঁর", "Meaning": "his/her (formal)", "Note": "possessive pronoun, respectful form"},
+                     {"Word": "তিনটি", "Meaning": "three", "Note": "তিন (tin) = three + টি (ti) = counter/classifier"},
+                     {"Word": "ছেলে", "Meaning": "boy/son", "Note": "similar to छोरा in some Hindi dialects"},
+                     {"Word": "ছিল", "Meaning": "was/were (informal)", "Note": "past tense, informal form"}
+                 ]},
+                {"Bengali": "বনে যাও", "Pronunciation": "bone jao", "Meaning": "Go to the forest", 
+                 "Breakdown": [
+                     {"Word": "বনে", "Meaning": "in the forest", "Note": "বন (bon) = forest + এ (e) = locative case ending"},
+                     {"Word": "যাও", "Meaning": "go", "Note": "imperative form of যাওয়া (jaowa) = to go"}
+                 ]},
+                {"Bengali": "কিছু দেখে এসো", "Pronunciation": "kichhu dekhe esho", "Meaning": "See something and come back", 
+                 "Breakdown": [
+                     {"Word": "কিছু", "Meaning": "something", "Note": "similar to कुछ (kuchh) in Hindi"},
+                     {"Word": "দেখে", "Meaning": "seeing/having seen", "Note": "perfective participle of দেখা (dekha) = to see"},
+                     {"Word": "এসো", "Meaning": "come back", "Note": "imperative form of আসা (asha) = to come"}
+                 ]},
+                {"Bengali": "সোনার পাখি", "Pronunciation": "shonar pakhi", "Meaning": "Golden bird", 
+                 "Breakdown": [
+                     {"Word": "সোনার", "Meaning": "golden/of gold", "Note": "সোনা (shona) = gold + র (r) = possessive marker"},
+                     {"Word": "পাখি", "Meaning": "bird", "Note": "similar to पंछी (panchhi) in Hindi"}
+                 ]},
+                {"Bengali": "বাড়ি ফিরে এসে", "Pronunciation": "bari fire eshe", "Meaning": "Having returned home", 
+                 "Breakdown": [
+                     {"Word": "বাড়ি", "Meaning": "home/house", "Note": "similar to बाड़ी in some Hindi dialects"},
+                     {"Word": "ফিরে", "Meaning": "having returned", "Note": "perfective participle of ফেরা (phera) = to return"},
+                     {"Word": "এসে", "Meaning": "having come", "Note": "perfective participle of আসা (asha) = to come"}
+                 ]},
+                {"Bengali": "সোনার ফল খেয়েছি", "Pronunciation": "shonar fol kheyechhi", "Meaning": "I ate a golden fruit", 
+                 "Breakdown": [
+                     {"Word": "সোনার", "Meaning": "golden/of gold", "Note": "সোনা (shona) = gold + র (r) = possessive marker"},
+                     {"Word": "ফল", "Meaning": "fruit", "Note": "similar to फल (phal) in Hindi"},
+                     {"Word": "খেয়েছি", "Meaning": "I have eaten", "Note": "present perfect of খাওয়া (khaowa) = to eat, 1st person"}
+                 ]},
+                {"Bengali": "অনেক মূল্যবান", "Pronunciation": "onek mulloban", "Meaning": "Very valuable", 
+                 "Breakdown": [
+                     {"Word": "অনেক", "Meaning": "very/much", "Note": "similar to अनेक (anek) in Hindi"},
+                     {"Word": "মূল্যবান", "Meaning": "valuable", "Note": "মূল্য (mullo) = value + বান (ban) = possessing"}
+                 ]},
+                {"Bengali": "সোনার কথা", "Pronunciation": "shonar kotha", "Meaning": "Golden words", 
+                 "Breakdown": [
+                     {"Word": "সোনার", "Meaning": "golden/of gold", "Note": "সোনা (shona) = gold + র (r) = possessive marker"},
+                     {"Word": "কথা", "Meaning": "words/speech", "Note": "similar to कथा (katha) in Hindi"}
+                 ]},
+                {"Bengali": "খুব খুশি", "Pronunciation": "khub khushi", "Meaning": "Very happy", 
+                 "Breakdown": [
+                     {"Word": "খুব", "Meaning": "very", "Note": "similar to खूब (khub) in Hindi"},
+                     {"Word": "খুশি", "Meaning": "happy", "Note": "similar to खुशी (khushi) in Hindi"}
+                 ]},
             ]
             
+            # Display phrases with sound buttons and word breakdowns
             for i, row in pd.DataFrame(key_phrases).iterrows():
-                col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
+                st.markdown(f"### {i+1}. {row['Bengali']}")
+                col1, col2, col3 = st.columns([2, 3, 1])
                 with col1:
-                    st.markdown(f"**{row['Bengali']}**")
-                with col2:
                     st.write(f"**Pronunciation:** {row['Pronunciation']}")
-                with col3:
+                with col2:
                     st.write(f"**Meaning:** {row['Meaning']}")
-                with col4:
+                with col3:
                     audio_button(row['Bengali'], "🔊", f"key_phrase_{i}")
+                
+                # Word-by-word breakdown
+                st.write("**Word-by-word breakdown:**")
+                breakdown_data = row['Breakdown']
+                breakdown_df = pd.DataFrame(breakdown_data)
+                
+                for j, word_row in breakdown_df.iterrows():
+                    word_col1, word_col2, word_col3, word_col4 = st.columns([1.5, 2, 2.5, 1])
+                    with word_col1:
+                        st.markdown(f"**{word_row['Word']}**")
+                    with word_col2:
+                        st.write(f"Meaning: {word_row['Meaning']}")
+                    with word_col3:
+                        st.write(f"Note: {word_row['Note']}")
+                    with word_col4:
+                        audio_button(word_row['Word'], "🔊", f"word_breakdown_{i}_{j}")
+                
+                st.markdown("---")
             
         st.subheader("Practice Reading")
         st.write("Try reading the story line by line, using the pronunciation guide and audio buttons for help.")
