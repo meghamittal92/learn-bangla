@@ -1,275 +1,308 @@
-import tkinter as tk
-from tkinter import scrolledtext, ttk, messagebox
+import streamlit as st
 import json
 import os
 from gtts import gTTS
-import pygame
 import time
-from googletrans import Translator
 import re
+from googletrans import Translator, LANGUAGES
+import base64
+import pandas as pd
 
-class BengaliHindiTranslator:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Bengali to Hindi Translator")
-        self.root.geometry("900x700")
-        self.root.configure(bg="#f0f0f0")
+# Set page configuration
+st.set_page_config(
+    page_title="Bengali to Hindi Translator",
+    page_icon="🔤",
+    layout="wide"
+)
+
+# Custom CSS
+st.markdown("""
+<style>
+    .bengali-text {
+        font-size: 18px;
+        padding: 10px;
+        background-color: #f0f8ff;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    .hindi-text {
+        font-size: 18px;
+        padding: 10px;
+        background-color: #fff0f5;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    .word-card {
+        display: inline-block;
+        padding: 8px;
+        margin: 4px;
+        background-color: #e6f7ff;
+        border-radius: 5px;
+        border: 1px solid #b3e0ff;
+    }
+    .word-bengali {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    .word-hindi {
+        font-size: 16px;
+        color: #0066cc;
+    }
+    .audio-button {
+        margin-top: 5px;
+        padding: 5px 10px;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .line-container {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: white;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Initialize session state
+if 'translations' not in st.session_state:
+    st.session_state.translations = {}
+
+# Directory for audio files - use temp directory
+audio_dir = "audio_files"
+if not os.path.exists(audio_dir):
+    os.makedirs(audio_dir)
+
+# Function to get audio HTML
+def get_audio_html(text, lang):
+    """Generate audio for text and return HTML audio player"""
+    try:
+        # Create a unique filename
+        filename = f"{audio_dir}/{lang}_{hash(text)}.mp3"
         
-        # Initialize pygame mixer for audio playback
-        pygame.mixer.init()
+        # Generate audio if file doesn't exist
+        if not os.path.exists(filename):
+            tts = gTTS(text=text, lang=lang, slow=False)
+            tts.save(filename)
         
-        # Initialize Google Translator
-        self.translator = Translator()
+        # Read audio file as bytes
+        with open(filename, "rb") as audio_file:
+            audio_bytes = audio_file.read()
         
-        # Dictionary to store translations
-        self.translations = {}
+        # Encode to base64
+        audio_base64 = base64.b64encode(audio_bytes).decode()
         
-        # Create the main frame
-        main_frame = tk.Frame(root, bg="#f0f0f0")
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        # Create HTML audio element
+        audio_html = f"""
+        <audio controls>
+            <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+        """
         
-        # Create the input frame
-        input_frame = tk.LabelFrame(main_frame, text="Input Bengali Text", bg="#f0f0f0", font=("Arial", 12))
-        input_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # Bengali text input
-        self.bengali_text = scrolledtext.ScrolledText(input_frame, wrap=tk.WORD, font=("Arial", 12), height=8)
-        self.bengali_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # Control frame
-        control_frame = tk.Frame(main_frame, bg="#f0f0f0")
-        control_frame.pack(fill=tk.X, padx=5, pady=5)
-        
-        # Translation button
-        self.translate_btn = tk.Button(control_frame, text="Translate", command=self.translate_text, 
-                                      bg="#4CAF50", fg="white", font=("Arial", 12), width=15)
-        self.translate_btn.pack(side=tk.LEFT, padx=5)
-        
-        # Clear button
-        self.clear_btn = tk.Button(control_frame, text="Clear", command=self.clear_all, 
-                                  bg="#f44336", fg="white", font=("Arial", 12), width=15)
-        self.clear_btn.pack(side=tk.LEFT, padx=5)
-        
-        # View mode selection
-        self.view_mode = tk.StringVar(value="line")
-        view_frame = tk.Frame(control_frame, bg="#f0f0f0")
-        view_frame.pack(side=tk.RIGHT, padx=5)
-        
-        tk.Label(view_frame, text="View Mode:", bg="#f0f0f0", font=("Arial", 12)).pack(side=tk.LEFT)
-        tk.Radiobutton(view_frame, text="Line", variable=self.view_mode, value="line", 
-                      command=self.update_view, bg="#f0f0f0", font=("Arial", 10)).pack(side=tk.LEFT)
-        tk.Radiobutton(view_frame, text="Word", variable=self.view_mode, value="word", 
-                      command=self.update_view, bg="#f0f0f0", font=("Arial", 10)).pack(side=tk.LEFT)
-        
-        # Output frame
-        self.output_frame = tk.LabelFrame(main_frame, text="Translation", bg="#f0f0f0", font=("Arial", 12))
-        self.output_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # Translation output - will be populated dynamically
-        self.translation_canvas = tk.Canvas(self.output_frame, bg="white")
-        self.translation_canvas.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # Scrollbar for the canvas
-        self.scrollbar = tk.Scrollbar(self.translation_canvas, command=self.translation_canvas.yview)
-        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
-        self.translation_canvas.configure(yscrollcommand=self.scrollbar.set)
-        
-        # Create a frame inside the canvas
-        self.translation_frame = tk.Frame(self.translation_canvas, bg="white")
-        self.canvas_frame = self.translation_canvas.create_window((0, 0), window=self.translation_frame, anchor="nw")
-        
-        # Update the scroll region when the size of the frame changes
-        self.translation_frame.bind("<Configure>", self.on_frame_configure)
-        
-        # Status bar
-        self.status_var = tk.StringVar()
-        self.status_var.set("Ready")
-        self.status_bar = tk.Label(root, textvariable=self.status_var, bd=1, relief=tk.SUNKEN, anchor=tk.W)
-        self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
-        
-        # Directory for audio files
-        self.audio_dir = "audio_files"
-        if not os.path.exists(self.audio_dir):
-            os.makedirs(self.audio_dir)
+        return audio_html
     
-    def on_frame_configure(self, event):
-        """Update the scroll region based on the size of the frame"""
-        self.translation_canvas.configure(scrollregion=self.translation_canvas.bbox("all"))
+    except Exception as e:
+        st.error(f"Audio error: {str(e)}")
+        return ""
+
+# Function to translate text
+def translate_text(bengali_text):
+    """Translate Bengali text to Hindi"""
+    if not bengali_text:
+        st.warning("Please enter Bengali text to translate.")
+        return
     
-    def translate_text(self):
-        """Translate the Bengali text to Hindi"""
-        # Get the Bengali text
-        bengali_text = self.bengali_text.get("1.0", tk.END).strip()
+    try:
+        # Create translator
+        translator = Translator()
         
-        if not bengali_text:
-            messagebox.showwarning("Warning", "Please enter Bengali text to translate.")
-            return
-        
-        # Update status
-        self.status_var.set("Translating...")
-        self.root.update()
-        
-        try:
-            # Split the text into lines
-            lines = bengali_text.split('\n')
-            lines = [line.strip() for line in lines if line.strip()]
-            
-            # Process each line
-            for line in lines:
-                if line not in self.translations:
-                    # Translate the whole line
-                    line_translation = self.translator.translate(line, src='bn', dest='hi').text
-                    
-                    # Split line into words and translate each
-                    words = re.findall(r'[\w\u0980-\u09FF]+|[^\w\s]', line)
-                    word_translations = []
-                    
-                    for word in words:
-                        if word.strip():
-                            try:
-                                word_trans = self.translator.translate(word, src='bn', dest='hi').text
-                                pronunciation = word  # In a real app, we'd use a proper transliteration API
-                                word_translations.append({
-                                    'bengali': word,
-                                    'hindi': word_trans,
-                                    'pronunciation': pronunciation
-                                })
-                            except Exception as e:
-                                word_translations.append({
-                                    'bengali': word,
-                                    'hindi': '?',
-                                    'pronunciation': word
-                                })
-                    
-                    # Store the translations
-                    self.translations[line] = {
-                        'hindiLine': line_translation,
-                        'words': word_translations
-                    }
-            
-            # Update the display
-            self.update_view()
-            
-            # Update status
-            self.status_var.set(f"Translation completed. {len(lines)} lines processed.")
-        
-        except Exception as e:
-            messagebox.showerror("Error", f"Translation error: {str(e)}")
-            self.status_var.set("Translation failed.")
-    
-    def update_view(self):
-        """Update the translation view based on selected mode"""
-        # Clear previous translations
-        for widget in self.translation_frame.winfo_children():
-            widget.destroy()
-        
-        # Get Bengali text and split into lines
-        bengali_text = self.bengali_text.get("1.0", tk.END).strip()
+        # Split the text into lines
         lines = bengali_text.split('\n')
         lines = [line.strip() for line in lines if line.strip()]
         
-        # Current view mode
-        mode = self.view_mode.get()
+        progress_bar = st.progress(0)
+        status_text = st.empty()
         
-        # Display translations
+        # Process each line
         for i, line in enumerate(lines):
-            if line in self.translations:
-                # Create a frame for this line
-                line_frame = tk.Frame(self.translation_frame, bg="white", bd=1, relief=tk.GROOVE)
-                line_frame.pack(fill=tk.X, padx=5, pady=5)
+            if line not in st.session_state.translations:
+                status_text.text(f"Translating line {i+1} of {len(lines)}...")
                 
-                # Line number
-                tk.Label(line_frame, text=f"{i+1}.", bg="white", font=("Arial", 10)).pack(side=tk.LEFT, padx=5)
+                # Translate the whole line
+                line_translation = translator.translate(line, src='bn', dest='hi').text
                 
-                # Bengali text
-                tk.Label(line_frame, text=line, bg="white", font=("Arial", 12), wraplength=400, justify=tk.LEFT).pack(anchor=tk.W, padx=5, pady=2)
+                # Split line into words and translate each
+                words = re.findall(r'[\w\u0980-\u09FF]+|[^\w\s]', line)
+                word_translations = []
                 
-                # Listen button
-                listen_btn = tk.Button(line_frame, text="🔊", command=lambda l=line: self.play_audio(l, 'bn'),
-                                     bg="#2196F3", fg="white", font=("Arial", 10))
-                listen_btn.pack(side=tk.RIGHT, padx=5)
+                for j, word in enumerate(words):
+                    if word.strip():
+                        try:
+                            word_trans = translator.translate(word, src='bn', dest='hi').text
+                            pronunciation = word  # Placeholder for proper transliteration
+                            word_translations.append({
+                                'bengali': word,
+                                'hindi': word_trans,
+                                'pronunciation': pronunciation
+                            })
+                        except Exception:
+                            word_translations.append({
+                                'bengali': word,
+                                'hindi': '?',
+                                'pronunciation': word
+                            })
                 
-                # Hindi translation
-                hindi_line = self.translations[line]['hindiLine']
-                
-                if mode == "line":
-                    # Line view
-                    hindi_frame = tk.Frame(line_frame, bg="white")
-                    hindi_frame.pack(fill=tk.X, padx=5, pady=2)
-                    
-                    tk.Label(hindi_frame, text=hindi_line, bg="#e6f7ff", font=("Arial", 12), 
-                           wraplength=400, justify=tk.LEFT).pack(anchor=tk.W, padx=5, pady=2, fill=tk.X)
-                    
-                    # Listen button for Hindi
-                    tk.Button(hindi_frame, text="🔊", command=lambda l=hindi_line: self.play_audio(l, 'hi'),
-                           bg="#2196F3", fg="white", font=("Arial", 10)).pack(side=tk.RIGHT, padx=5)
-                    
-                else:
-                    # Word view
-                    word_frame = tk.Frame(line_frame, bg="white")
-                    word_frame.pack(fill=tk.X, padx=5, pady=2)
-                    
-                    for word_data in self.translations[line]['words']:
-                        word_box = tk.Frame(word_frame, bg="#e6f7ff", bd=1, relief=tk.RAISED)
-                        word_box.pack(side=tk.LEFT, padx=2, pady=2)
-                        
-                        tk.Label(word_box, text=word_data['bengali'], bg="#e6f7ff", font=("Arial", 11)).pack(anchor=tk.W)
-                        tk.Label(word_box, text=word_data['hindi'], bg="#e6f7ff", fg="#0066cc", font=("Arial", 11)).pack(anchor=tk.W)
-                        
-                        # Listen button for word
-                        tk.Button(word_box, text="🔊", command=lambda w=word_data['bengali']: self.play_audio(w, 'bn'),
-                               bg="#2196F3", fg="white", font=("Arial", 8), width=2, height=1).pack(side=tk.RIGHT, padx=2)
-        
-        # Update scroll region
-        self.translation_canvas.update_idletasks()
-        self.translation_canvas.configure(scrollregion=self.translation_canvas.bbox("all"))
-    
-    def play_audio(self, text, language):
-        """Generate and play audio for the text"""
-        try:
-            # Create a unique filename
-            filename = f"{self.audio_dir}/{language}_{hash(text)}.mp3"
+                # Store the translations
+                st.session_state.translations[line] = {
+                    'hindiLine': line_translation,
+                    'words': word_translations
+                }
             
-            # Generate audio if file doesn't exist
-            if not os.path.exists(filename):
-                self.status_var.set(f"Generating audio...")
-                self.root.update()
-                
-                tts = gTTS(text=text, lang=language, slow=False)
-                tts.save(filename)
-            
-            # Play the audio
-            self.status_var.set(f"Playing audio...")
-            pygame.mixer.music.load(filename)
-            pygame.mixer.music.play()
-            
-            # Wait for audio to finish
-            while pygame.mixer.music.get_busy():
-                pygame.time.Clock().tick(10)
-                self.root.update()
-            
-            self.status_var.set("Ready")
+            # Update progress
+            progress_bar.progress((i + 1) / len(lines))
         
-        except Exception as e:
-            messagebox.showerror("Error", f"Audio error: {str(e)}")
-            self.status_var.set("Audio playback failed.")
-    
-    def clear_all(self):
-        """Clear all inputs and translations"""
-        self.bengali_text.delete("1.0", tk.END)
-        self.translations = {}
+        status_text.text(f"Translation completed. Processed {len(lines)} lines.")
+        time.sleep(1)
+        status_text.empty()
+        progress_bar.empty()
         
-        # Clear translation display
-        for widget in self.translation_frame.winfo_children():
-            widget.destroy()
-        
-        self.status_var.set("Ready")
+    except Exception as e:
+        st.error(f"Translation error: {str(e)}")
 
-def main():
-    root = tk.Tk()
-    app = BengaliHindiTranslator(root)
-    root.mainloop()
+# Header
+st.title("Bengali to Hindi Translator")
+st.markdown("Paste Bengali text below to get Hindi translation with audio support.")
 
-if __name__ == "__main__":
-    main()
+# Input area
+bengali_text = st.text_area("Input Bengali Text", height=150)
+
+col1, col2 = st.columns([1, 5])
+translate_button = col1.button("Translate")
+clear_button = col2.button("Clear All")
+
+# Handle clear button
+if clear_button:
+    st.session_state.translations = {}
+    st.experimental_rerun()
+
+# Translate when button is clicked
+if translate_button and bengali_text:
+    translate_text(bengali_text)
+
+# View option
+view_mode = st.radio("View Mode:", ["Line-by-Line", "Word-by-Word"], horizontal=True)
+
+# Display translations if available
+if bengali_text and st.session_state.translations:
+    st.subheader("Translation Results")
+    
+    # Split into lines
+    lines = bengali_text.split('\n')
+    lines = [line.strip() for line in lines if line.strip()]
+    
+    # Create a table-like structure for display
+    for i, line in enumerate(lines):
+        if line in st.session_state.translations:
+            with st.container():
+                st.markdown(f"<div class='line-container'>", unsafe_allow_html=True)
+                
+                # Line number and Bengali text
+                st.markdown(f"<strong>Line {i+1}:</strong>", unsafe_allow_html=True)
+                st.markdown(f"<div class='bengali-text'>{line}</div>", unsafe_allow_html=True)
+                
+                # Audio for Bengali
+                bengali_audio = get_audio_html(line, 'bn')
+                st.markdown(f"<div style='text-align: right;'>{bengali_audio}</div>", unsafe_allow_html=True)
+                
+                # Hindi translation based on view mode
+                if view_mode == "Line-by-Line":
+                    hindi_line = st.session_state.translations[line]['hindiLine']
+                    st.markdown(f"<div class='hindi-text'>{hindi_line}</div>", unsafe_allow_html=True)
+                    
+                    # Audio for Hindi
+                    hindi_audio = get_audio_html(hindi_line, 'hi')
+                    st.markdown(f"<div style='text-align: right;'>{hindi_audio}</div>", unsafe_allow_html=True)
+                
+                else:  # Word-by-Word
+                    word_html = "<div style='display: flex; flex-wrap: wrap;'>"
+                    for word_data in st.session_state.translations[line]['words']:
+                        word_html += f"""
+                        <div class='word-card'>
+                            <div class='word-bengali'>{word_data['bengali']}</div>
+                            <div class='word-hindi'>{word_data['hindi']}</div>
+                        </div>
+                        """
+                    word_html += "</div>"
+                    st.markdown(word_html, unsafe_allow_html=True)
+                
+                st.markdown("</div>", unsafe_allow_html=True)
+                st.markdown("---")
+
+# Add stats and export options if translations exist
+if st.session_state.translations:
+    st.subheader("Statistics")
+    
+    # Calculate statistics
+    total_lines = len(st.session_state.translations)
+    total_words = sum(len(data['words']) for data in st.session_state.translations.values())
+    
+    col1, col2 = st.columns(2)
+    col1.metric("Total Lines", total_lines)
+    col2.metric("Total Words", total_words)
+    
+    # Export option
+    st.subheader("Export Options")
+    
+    if st.button("Export as CSV"):
+        # Prepare data for CSV
+        export_data = []
+        for line, trans in st.session_state.translations.items():
+            export_data.append({
+                "Bengali": line,
+                "Hindi": trans['hindiLine']
+            })
+        
+        # Create DataFrame and convert to CSV
+        df = pd.DataFrame(export_data)
+        csv = df.to_csv(index=False).encode('utf-8')
+        
+        # Create download button
+        st.download_button(
+            label="Download CSV",
+            data=csv,
+            file_name="bengali_hindi_translation.csv",
+            mime="text/csv"
+        )
+
+# Add information and help
+with st.expander("Help & Information"):
+    st.markdown("""
+    ### How to use this tool
+    
+    1. **Paste Bengali text** in the input area
+    2. Click the **Translate** button
+    3. Choose between **Line-by-Line** or **Word-by-Word** view
+    4. Use the **audio controls** to listen to pronunciation
+    5. **Export** your translations as needed
+    
+    ### Features
+    
+    - Translation from Bengali to Hindi
+    - Audio playback for both languages
+    - Word-by-word breakdown option
+    - Export functionality
+    
+    ### Notes
+    
+    - This tool uses Google Translate API
+    - Audio quality depends on the text-to-speech engine
+    - For best results, paste well-formatted Bengali text
+    """)
+
+# Add footer
+st.markdown("---")
+st.markdown("*Bengali to Hindi Translator Tool* | *Created with Streamlit*")
