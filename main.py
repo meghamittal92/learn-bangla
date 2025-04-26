@@ -6,82 +6,127 @@ import re
 import base64
 import pandas as pd
 import uuid
-import requests
-import json
 from googletrans import Translator
 
-# Set page configuration
+# Set page configuration with dark theme
 st.set_page_config(
     page_title="Bengali to Hindi Translator",
     page_icon="🔤",
     layout="wide"
 )
 
-# Custom CSS with fixes for display issues and text visibility
+# Force dark theme and ensure text visibility
 st.markdown("""
 <style>
+    /* Force dark mode */
+    .stApp {
+        background-color: #0e1117;
+        color: #fafafa;
+    }
+    
+    /* Make sure all standard text is visible */
+    p, h1, h2, h3, h4, h5, h6, li, span {
+        color: #fafafa !important;
+    }
+    
+    /* Styling for Bengali text */
     .bengali-text {
         font-size: 18px;
-        padding: 10px;
-        background-color: #f0f8ff;
+        padding: 15px;
+        background-color: #1e2130;
+        color: #fafafa !important;
         border-radius: 5px;
         margin: 10px 0;
         display: block;
         width: 100%;
-        color: #000000;  /* Black text for contrast */
-        border: 1px solid #b3d1ff;  /* Add border for definition */
+        border: 1px solid #4b5563;
     }
+    
+    /* Styling for Hindi text */
     .hindi-text {
         font-size: 18px;
-        padding: 10px;
-        background-color: #fff0f5;
+        padding: 15px;
+        background-color: #1e2130;
+        color: #fafafa !important;
         border-radius: 5px;
         margin: 10px 0;
         display: block;
         width: 100%;
-        color: #000000;  /* Black text for contrast */
-        border: 1px solid #ffb3d1;  /* Add border for definition */
+        border: 1px solid #4b5563;
     }
+    
+    /* Word cards for word-by-word view */
     .word-card {
         display: inline-block;
-        padding: 8px;
-        margin: 4px;
-        background-color: #e6f7ff;
+        padding: 10px;
+        margin: 5px;
+        background-color: #2d3748;
+        color: #fafafa;
         border-radius: 5px;
-        border: 1px solid #b3e0ff;
-        color: #000000;  /* Ensure text is black */
+        border: 1px solid #4a5568;
     }
+    
     .word-bengali {
         font-size: 16px;
         font-weight: bold;
-        color: #000000;  /* Black text */
+        color: #fafafa;
+        margin-bottom: 5px;
     }
+    
     .word-hindi {
         font-size: 16px;
-        color: #0066cc;  /* Dark blue for contrast */
+        color: #63b3ed;
     }
+    
+    /* Line container styling */
     .line-container {
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid #4a5568;
         border-radius: 5px;
-        background-color: #f8f9fa;  /* Light gray background */
-        display: block;
-        width: 100%;
+        background-color: #1a202c;
     }
-    div[data-testid="stVerticalBlock"] {
-        gap: 0;
-    }
-    /* Ensure all text in markdown is visible */
-    p, h1, h2, h3, h4, h5, h6, li, div {
-        color: #000000;
-    }
-    /* High contrast for section headers */
-    .section-header {
+    
+    /* Make buttons more visible */
+    .stButton>button {
+        background-color: #4299e1;
+        color: white;
         font-weight: bold;
-        color: #000000 !important;
-        background-color: #f2f2f2;
+    }
+    
+    /* Section headers */
+    .section-header {
+        color: #fafafa !important;
         padding: 5px;
+        border-bottom: 2px solid #4299e1;
+        margin-bottom: 10px;
+    }
+    
+    /* Sidebar text color */
+    .css-1d391kg, .css-1lcbmhc {
+        color: #fafafa;
+    }
+    
+    /* Input field styling */
+    .stTextArea textarea {
+        background-color: #2d3748;
+        color: #fafafa;
+        border: 1px solid #4a5568;
+    }
+    
+    /* Radio buttons */
+    .stRadio label {
+        color: #fafafa !important;
+    }
+    
+    /* Override any light mode specific styles */
+    div[data-testid="stVerticalBlock"] {
+        color: #fafafa;
+    }
+    
+    /* Audio controls styling */
+    audio {
+        background-color: #2d3748;
         border-radius: 5px;
     }
 </style>
@@ -116,7 +161,7 @@ def get_audio_html(text, lang):
         
         # Create HTML audio element with explicit width and controls
         audio_html = f"""
-        <audio controls style="width:100%; max-width:250px; display:block; margin-top:5px;">
+        <audio controls style="width:100%; max-width:250px; display:block; margin-top:10px; background-color:#2d3748;">
             <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
             Your browser does not support the audio element.
         </audio>
@@ -249,10 +294,8 @@ def translate_text(bengali_text):
 
 # Add information in the sidebar
 with st.sidebar:
-    st.header("About This Translator")
+    st.markdown('<h3 class="section-header">About This Translator</h3>', unsafe_allow_html=True)
     st.markdown("""
-    ### Bengali to Hindi Translator
-    
     This application translates Bengali text to Hindi using an enhanced translation approach:
     
     - **Custom Dictionary**: For common Bengali phrases and poetry
@@ -264,22 +307,22 @@ with st.sidebar:
     
     st.markdown("---")
     
+    st.markdown('<h3 class="section-header">Tips for Best Results</h3>', unsafe_allow_html=True)
     st.markdown("""
-    ### Tips for Best Results
-    
     - For poetry, translate stanza by stanza
     - Complete sentences translate better than isolated words
     - Some idiomatic expressions may not translate perfectly
     """)
 
-# Header with clear styling
-st.markdown('<h1 style="color: #000000;">Bengali to Hindi Translator</h1>', unsafe_allow_html=True)
-st.markdown('<p style="color: #000000; font-size: 16px;">Paste Bengali text below to get Hindi translation with audio support.</p>', unsafe_allow_html=True)
+# Header with visible styling for dark mode
+st.markdown('<h1 style="color: #fafafa; border-bottom: 2px solid #4299e1; padding-bottom: 8px;">Bengali to Hindi Translator</h1>', unsafe_allow_html=True)
+st.markdown('<p style="color: #fafafa; font-size: 16px; margin-bottom: 20px;">Paste Bengali text below to get Hindi translation with audio support.</p>', unsafe_allow_html=True)
 
-# Input area - ensure text is visible
+# Input area - using Streamlit's component with dark mode styling already applied
 bengali_text = st.text_area("Input Bengali Text", height=150)
 
-col1, col2 = st.columns([1, 5])
+# Action buttons
+col1, col2, col3 = st.columns([1, 1, 4])
 translate_button = col1.button("Translate")
 clear_button = col2.button("Clear All")
 
@@ -303,46 +346,49 @@ if bengali_text and st.session_state.translations:
     lines = bengali_text.split('\n')
     lines = [line.strip() for line in lines if line.strip()]
     
-    # Create a table-like structure for display
+    # Use a distinctive container for each line
     for i, line in enumerate(lines):
         if line in st.session_state.translations:
-            # Display container with explicit styling
-            st.markdown(f'<div style="padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f8f9fa;">', unsafe_allow_html=True)
-            
-            # Line number with clear styling
-            st.markdown(f'<h3 style="color: #000000; margin-bottom: 10px;">Line {i+1}</h3>', unsafe_allow_html=True)
-            
-            # Use columns instead of containers for better layout
-            col1, col2 = st.columns([1, 1])
-            
-            with col1:
-                st.markdown(f'<p style="color: #000000; font-weight: bold;">Bengali:</p>', unsafe_allow_html=True)
-                # Use a div with explicit styling to ensure visibility
-                st.markdown(f'<div class="bengali-text">{line}</div>', unsafe_allow_html=True)
-                bengali_audio = get_audio_html(line, 'bn')
-                st.markdown(bengali_audio, unsafe_allow_html=True)
-            
-            with col2:
-                st.markdown(f'<p style="color: #000000; font-weight: bold;">Hindi Translation:</p>', unsafe_allow_html=True)
-                # Hindi translation based on view mode
-                if view_mode == "Line-by-Line":
-                    hindi_line = st.session_state.translations[line]['hindiLine']
-                    st.markdown(f'<div class="hindi-text">{hindi_line}</div>', unsafe_allow_html=True)
-                    # No audio for Hindi as requested
+            with st.container():
+                # Create visible line container
+                st.markdown(f"""
+                <div class="line-container">
+                    <h3 style="color: #fafafa; margin-bottom: 15px; border-bottom: 1px solid #4299e1; padding-bottom: 5px;">
+                        Line {i+1}
+                    </h3>
+                """, unsafe_allow_html=True)
                 
-                else:  # Word-by-Word
-                    word_html = '<div style="display: flex; flex-wrap: wrap;">'
-                    for word_data in st.session_state.translations[line]['words']:
-                        word_html += f"""
-                        <div class="word-card">
-                            <div class="word-bengali">{word_data['bengali']}</div>
-                            <div class="word-hindi">{word_data['hindi']}</div>
-                        </div>
-                        """
-                    word_html += "</div>"
-                    st.markdown(word_html, unsafe_allow_html=True)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
+                # Bengali and Hindi in columns
+                col1, col2 = st.columns([1, 1])
+                
+                with col1:
+                    st.markdown('<p style="color: #fafafa; font-weight: bold; margin-bottom: 5px;">Bengali:</p>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="bengali-text">{line}</div>', unsafe_allow_html=True)
+                    # Audio for Bengali
+                    bengali_audio = get_audio_html(line, 'bn')
+                    st.markdown(bengali_audio, unsafe_allow_html=True)
+                
+                with col2:
+                    st.markdown('<p style="color: #fafafa; font-weight: bold; margin-bottom: 5px;">Hindi Translation:</p>', unsafe_allow_html=True)
+                    
+                    # Hindi translation based on view mode
+                    if view_mode == "Line-by-Line":
+                        hindi_line = st.session_state.translations[line]['hindiLine']
+                        st.markdown(f'<div class="hindi-text">{hindi_line}</div>', unsafe_allow_html=True)
+                    
+                    else:  # Word-by-Word
+                        word_html = '<div style="display: flex; flex-wrap: wrap;">'
+                        for word_data in st.session_state.translations[line]['words']:
+                            word_html += f"""
+                            <div class="word-card">
+                                <div class="word-bengali">{word_data['bengali']}</div>
+                                <div class="word-hindi">{word_data['hindi']}</div>
+                            </div>
+                            """
+                        word_html += "</div>"
+                        st.markdown(word_html, unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
 
 # Add stats and export options if translations exist
 if st.session_state.translations:
@@ -352,6 +398,7 @@ if st.session_state.translations:
     total_lines = len(st.session_state.translations)
     total_words = sum(len(data['words']) for data in st.session_state.translations.values())
     
+    # Display metrics in a dark mode friendly way
     col1, col2 = st.columns(2)
     col1.metric("Total Lines", total_lines)
     col2.metric("Total Words", total_words)
@@ -380,7 +427,7 @@ if st.session_state.translations:
             mime="text/csv"
         )
 
-# Add help with proper styling
+# Add help with proper dark mode styling
 with st.expander("Help & Information"):
     st.markdown("""
     ### How to use this tool
@@ -412,6 +459,6 @@ with st.expander("Help & Information"):
     ```
     """)
 
-# Add footer with explicit styling
-st.markdown('<hr style="margin-top: 30px; margin-bottom: 10px;">', unsafe_allow_html=True)
-st.markdown('<p style="color: #000000; text-align: center;">Bengali to Hindi Translator Tool</p>', unsafe_allow_html=True)
+# Add footer with dark mode styling
+st.markdown('<hr style="margin-top: 30px; margin-bottom: 10px; border-color: #4a5568;">', unsafe_allow_html=True)
+st.markdown('<p style="color: #fafafa; text-align: center;">Bengali to Hindi Translator Tool</p>', unsafe_allow_html=True)
