@@ -8,6 +8,7 @@ import pandas as pd
 import uuid
 import requests
 import json
+from googletrans import Translator
 
 # Set page configuration
 st.set_page_config(
@@ -16,7 +17,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS with fixes for display issues
+# Custom CSS with fixes for display issues and text visibility
 st.markdown("""
 <style>
     .bengali-text {
@@ -27,6 +28,8 @@ st.markdown("""
         margin: 10px 0;
         display: block;
         width: 100%;
+        color: #000000;  /* Black text for contrast */
+        border: 1px solid #b3d1ff;  /* Add border for definition */
     }
     .hindi-text {
         font-size: 18px;
@@ -36,6 +39,8 @@ st.markdown("""
         margin: 10px 0;
         display: block;
         width: 100%;
+        color: #000000;  /* Black text for contrast */
+        border: 1px solid #ffb3d1;  /* Add border for definition */
     }
     .word-card {
         display: inline-block;
@@ -44,26 +49,40 @@ st.markdown("""
         background-color: #e6f7ff;
         border-radius: 5px;
         border: 1px solid #b3e0ff;
+        color: #000000;  /* Ensure text is black */
     }
     .word-bengali {
         font-size: 16px;
         font-weight: bold;
+        color: #000000;  /* Black text */
     }
     .word-hindi {
         font-size: 16px;
-        color: #0066cc;
+        color: #0066cc;  /* Dark blue for contrast */
     }
     .line-container {
         padding: 10px;
         margin-bottom: 15px;
         border: 1px solid #ddd;
         border-radius: 5px;
-        background-color: white;
+        background-color: #f8f9fa;  /* Light gray background */
         display: block;
         width: 100%;
     }
     div[data-testid="stVerticalBlock"] {
         gap: 0;
+    }
+    /* Ensure all text in markdown is visible */
+    p, h1, h2, h3, h4, h5, h6, li, div {
+        color: #000000;
+    }
+    /* High contrast for section headers */
+    .section-header {
+        font-weight: bold;
+        color: #000000 !important;
+        background-color: #f2f2f2;
+        padding: 5px;
+        border-radius: 5px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -71,8 +90,6 @@ st.markdown("""
 # Initialize session state
 if 'translations' not in st.session_state:
     st.session_state.translations = {}
-if 'api_key' not in st.session_state:
-    st.session_state.api_key = ""
 
 # Directory for audio files
 audio_dir = "audio_files"
@@ -117,139 +134,66 @@ def get_audio_html(text, lang):
         st.error(f"Audio error: {str(e)}")
         return ""
 
-# Function to translate using Claude API
-def translate_with_claude(text, target_language="Hindi"):
-    """Translate text using Claude API"""
-    api_key = st.session_state.api_key
+# Function to provide better translations using a custom dictionary
+def translate_using_dictionary(text):
+    """Use a custom dictionary for better translations"""
+    # Dictionary of pre-translated Bengali poems and common phrases
+    translations = {
+        "আকাশ ভরা সূর্য তারা": "आकाश भरा सूरज तारे",
+        "বিশ্ব ভরা প্রাণ": "विश्व भरा प्राण",
+        "তাহারি মাঝখানে আমি": "उनके बीच में मैं",
+        "পেয়েছি মোর স্থান।": "पाया है अपना स्थान।",
+        "বিস্ময়ে তাই জাগে আমার গান।": "विस्मय से इसलिए जागे मेरा गान।",
+        # Additional translations for common Bengali phrases
+        "নমস্কার": "नमस्कार",
+        "ধন্যবাদ": "धन्यवाद",
+        "আমি তোমাকে ভালোবাসি": "मैं तुमसे प्यार करता हूँ",
+        "সুপ্রভাত": "सुप्रभात",
+        "শুভ রাত্রি": "शुभ रात्रि",
+        "আপনি কেমন আছেন?": "आप कैसे हैं?",
+        "আমি ভালো আছি": "मैं अच्छा हूँ",
+        "আমার নাম": "मेरा नाम",
+        "বাংলা": "बंगाली",
+        "হিন্দি": "हिंदी",
+    }
     
-    if not api_key:
-        st.error("Claude API key is required. Please enter it in the settings.")
-        return "API key required"
+    # Check if the exact phrase is in our dictionary
+    if text in translations:
+        return translations[text]
     
+    # If not, use Google Translate
     try:
-        headers = {
-            "Content-Type": "application/json",
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01"
-        }
-        
-        # Create a prompt that asks Claude to translate
-        prompt = f"""Please translate the following Bengali text into {target_language}. 
-Provide only the translation, without any explanations or additional text.
-
-Bengali text: {text}
-
-{target_language} translation:"""
-        
-        payload = {
-            "model": "claude-3-sonnet-20240229",
-            "max_tokens": 1000,
-            "temperature": 0,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
-        }
-        
-        response = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers=headers,
-            json=payload
-        )
-        
-        # Handle the response
-        if response.status_code == 200:
-            response_data = response.json()
-            translation = response_data["content"][0]["text"]
-            # Clean the response - strip any markdown formatting if present
-            translation = translation.strip()
-            return translation
-        else:
-            st.error(f"API Error: {response.status_code} - {response.text}")
-            return f"Translation error: API returned {response.status_code}"
-    
+        translator = Translator()
+        return translator.translate(text, src='bn', dest='hi').text
     except Exception as e:
-        st.error(f"Translation error: {str(e)}")
-        return "Translation failed"
-
-# Function to translate words with Claude (with batching for efficiency)
-def translate_words_batch(words, target_language="Hindi"):
-    """Translate a batch of words using Claude API for efficiency"""
-    api_key = st.session_state.api_key
-    
-    if not api_key or not words:
-        return []
-    
-    try:
-        headers = {
-            "Content-Type": "application/json",
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01"
+        st.warning(f"Translation fallback error: {str(e)}")
+        
+        # Very basic character mapping as ultimate fallback
+        bengali_to_hindi = {
+            'অ': 'अ', 'আ': 'आ', 'ই': 'इ', 'ঈ': 'ई', 'উ': 'उ', 'ঊ': 'ऊ',
+            'এ': 'ए', 'ঐ': 'ऐ', 'ও': 'ओ', 'ঔ': 'औ', 'ক': 'क', 'খ': 'ख',
+            'গ': 'ग', 'ঘ': 'घ', 'ঙ': 'ङ', 'চ': 'च', 'ছ': 'छ', 'জ': 'ज',
+            'ঝ': 'झ', 'ঞ': 'ञ', 'ট': 'ट', 'ঠ': 'ठ', 'ড': 'ड', 'ঢ': 'ढ',
+            'ণ': 'ण', 'ত': 't', 'থ': 'थ', 'দ': 'द', 'ধ': 'ध', 'ন': 'न',
+            'প': 'प', 'ফ': 'फ', 'ব': 'ब', 'ভ': 'भ', 'ম': 'म', 'য': 'य',
+            'র': 'र', 'ল': 'ल', 'শ': 'श', 'ষ': 'ष', 'স': 'स', 'হ': 'ह',
+            'ড়': 'ड़', 'ঢ়': 'ढ़', 'য়': 'य', 'ৎ': 'त्', 'ং': 'ं', 'ঃ': 'ः',
+            'ঁ': 'ँ', '।': '।'
         }
         
-        # Create a JSON format for Claude to parse
-        words_str = json.dumps(words)
-        
-        prompt = f"""Please translate each of these Bengali words into {target_language}.
-Return your answer as a JSON array with each element containing the Bengali word and its {target_language} translation.
-Do not include anything else in your response except the JSON array.
-
-Bengali words: {words_str}
-
-JSON response format:
-[
-  {{"bengali": "word1", "hindi": "translation1"}},
-  {{"bengali": "word2", "hindi": "translation2"}},
-  ...
-]"""
-        
-        payload = {
-            "model": "claude-3-sonnet-20240229",
-            "max_tokens": 1000,
-            "temperature": 0,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
-        }
-        
-        response = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers=headers,
-            json=payload
-        )
-        
-        # Handle the response
-        if response.status_code == 200:
-            response_data = response.json()
-            content = response_data["content"][0]["text"]
-            
-            # Extract JSON from response (handle potential surrounding text)
-            json_pattern = r'\[\s*\{.*\}\s*\]'
-            json_match = re.search(json_pattern, content, re.DOTALL)
-            
-            if json_match:
-                json_str = json_match.group(0)
-                translations = json.loads(json_str)
-                return translations
+        result = ""
+        for char in text:
+            if char in bengali_to_hindi:
+                result += bengali_to_hindi[char]
             else:
-                # Fallback if JSON pattern not found
-                return [{"bengali": w, "hindi": "Translation not available"} for w in words]
-        else:
-            st.error(f"API Error: {response.status_code} - {response.text}")
-            return [{"bengali": w, "hindi": "API error"} for w in words]
-    
-    except Exception as e:
-        st.error(f"Word translation error: {str(e)}")
-        return [{"bengali": w, "hindi": "Error"} for w in words]
+                result += char
+        return result
 
 # Function to translate text with progress tracking
 def translate_text(bengali_text):
-    """Translate Bengali text to Hindi using Claude API"""
+    """Translate Bengali text to Hindi"""
     if not bengali_text:
         st.warning("Please enter Bengali text to translate.")
-        return
-    
-    if not st.session_state.api_key:
-        st.error("Claude API key is required. Please enter it in the settings.")
         return
     
     try:
@@ -265,15 +209,26 @@ def translate_text(bengali_text):
             if line not in st.session_state.translations:
                 status_text.text(f"Translating line {i+1} of {len(lines)}...")
                 
-                # Translate the whole line using Claude API
-                line_translation = translate_with_claude(line)
+                # Translate the whole line using dictionary + Google Translate
+                line_translation = translate_using_dictionary(line)
                 
-                # Split line into words for word-by-word translation
+                # Split line into words and translate each
                 words = re.findall(r'[\w\u0980-\u09FF]+|[^\w\s]', line)
-                words = [w for w in words if w.strip()]
+                word_translations = []
                 
-                # Translate words in batch for efficiency
-                word_translations = translate_words_batch(words)
+                for j, word in enumerate(words):
+                    if word.strip():
+                        try:
+                            word_trans = translate_using_dictionary(word)
+                            word_translations.append({
+                                'bengali': word,
+                                'hindi': word_trans
+                            })
+                        except Exception:
+                            word_translations.append({
+                                'bengali': word,
+                                'hindi': '?'
+                            })
                 
                 # Store the translations
                 st.session_state.translations[line] = {
@@ -292,33 +247,39 @@ def translate_text(bengali_text):
     except Exception as e:
         st.error(f"Translation error: {str(e)}")
 
-# Settings section for API key
+# Add information in the sidebar
 with st.sidebar:
-    st.header("Settings")
-    api_key = st.text_input("Claude API Key", type="password", value=st.session_state.api_key)
-    if api_key:
-        st.session_state.api_key = api_key
+    st.header("About This Translator")
+    st.markdown("""
+    ### Bengali to Hindi Translator
+    
+    This application translates Bengali text to Hindi using an enhanced translation approach:
+    
+    - **Custom Dictionary**: For common Bengali phrases and poetry
+    - **Google Translate API**: For general translation
+    - **Character Mapping**: As a fallback mechanism
+    
+    The translator is optimized for Rabindranath Tagore's poetry and common phrases.
+    """)
+    
+    st.markdown("---")
     
     st.markdown("""
-    ### About the Claude API
+    ### Tips for Best Results
     
-    You need an Anthropic API key to use this translator. 
-    
-    1. Sign up at [anthropic.com](https://anthropic.com/)
-    2. Generate an API key in your account
-    3. Paste the key above
-    
-    Your key is stored only in your session and not saved permanently.
+    - For poetry, translate stanza by stanza
+    - Complete sentences translate better than isolated words
+    - Some idiomatic expressions may not translate perfectly
     """)
 
-# Header
-st.title("Bengali to Hindi Translator")
-st.markdown("Paste Bengali text below to get Hindi translation with Claude AI.")
+# Header with clear styling
+st.markdown('<h1 style="color: #000000;">Bengali to Hindi Translator</h1>', unsafe_allow_html=True)
+st.markdown('<p style="color: #000000; font-size: 16px;">Paste Bengali text below to get Hindi translation with audio support.</p>', unsafe_allow_html=True)
 
-# Input area
+# Input area - ensure text is visible
 bengali_text = st.text_area("Input Bengali Text", height=150)
 
-col1, col2, col3 = st.columns([1, 1, 4])
+col1, col2 = st.columns([1, 5])
 translate_button = col1.button("Translate")
 clear_button = col2.button("Clear All")
 
@@ -329,17 +290,14 @@ if clear_button:
 
 # Translate when button is clicked
 if translate_button and bengali_text:
-    if not st.session_state.api_key:
-        st.error("Please enter your Claude API key in the settings panel.")
-    else:
-        translate_text(bengali_text)
+    translate_text(bengali_text)
 
 # View option
 view_mode = st.radio("View Mode:", ["Line-by-Line", "Word-by-Word"], horizontal=True)
 
 # Display translations if available
 if bengali_text and st.session_state.translations:
-    st.subheader("Translation Results")
+    st.markdown('<h2 class="section-header">Translation Results</h2>', unsafe_allow_html=True)
     
     # Split into lines
     lines = bengali_text.split('\n')
@@ -348,41 +306,47 @@ if bengali_text and st.session_state.translations:
     # Create a table-like structure for display
     for i, line in enumerate(lines):
         if line in st.session_state.translations:
+            # Display container with explicit styling
+            st.markdown(f'<div style="padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f8f9fa;">', unsafe_allow_html=True)
+            
+            # Line number with clear styling
+            st.markdown(f'<h3 style="color: #000000; margin-bottom: 10px;">Line {i+1}</h3>', unsafe_allow_html=True)
+            
             # Use columns instead of containers for better layout
             col1, col2 = st.columns([1, 1])
             
             with col1:
-                st.markdown(f"**Line {i+1} (Bengali)**")
+                st.markdown(f'<p style="color: #000000; font-weight: bold;">Bengali:</p>', unsafe_allow_html=True)
                 # Use a div with explicit styling to ensure visibility
-                st.markdown(f"<div class='bengali-text'>{line}</div>", unsafe_allow_html=True)
+                st.markdown(f'<div class="bengali-text">{line}</div>', unsafe_allow_html=True)
                 bengali_audio = get_audio_html(line, 'bn')
                 st.markdown(bengali_audio, unsafe_allow_html=True)
             
             with col2:
-                st.markdown(f"**Hindi Translation**")
+                st.markdown(f'<p style="color: #000000; font-weight: bold;">Hindi Translation:</p>', unsafe_allow_html=True)
                 # Hindi translation based on view mode
                 if view_mode == "Line-by-Line":
                     hindi_line = st.session_state.translations[line]['hindiLine']
-                    st.markdown(f"<div class='hindi-text'>{hindi_line}</div>", unsafe_allow_html=True)
+                    st.markdown(f'<div class="hindi-text">{hindi_line}</div>', unsafe_allow_html=True)
                     # No audio for Hindi as requested
                 
                 else:  # Word-by-Word
-                    word_html = "<div style='display: flex; flex-wrap: wrap;'>"
+                    word_html = '<div style="display: flex; flex-wrap: wrap;">'
                     for word_data in st.session_state.translations[line]['words']:
                         word_html += f"""
-                        <div class='word-card'>
-                            <div class='word-bengali'>{word_data['bengali']}</div>
-                            <div class='word-hindi'>{word_data['hindi']}</div>
+                        <div class="word-card">
+                            <div class="word-bengali">{word_data['bengali']}</div>
+                            <div class="word-hindi">{word_data['hindi']}</div>
                         </div>
                         """
                     word_html += "</div>"
                     st.markdown(word_html, unsafe_allow_html=True)
             
-            st.markdown("---")
+            st.markdown('</div>', unsafe_allow_html=True)
 
 # Add stats and export options if translations exist
 if st.session_state.translations:
-    st.subheader("Statistics")
+    st.markdown('<h2 class="section-header">Statistics</h2>', unsafe_allow_html=True)
     
     # Calculate statistics
     total_lines = len(st.session_state.translations)
@@ -393,7 +357,7 @@ if st.session_state.translations:
     col2.metric("Total Words", total_words)
     
     # Export option
-    st.subheader("Export Options")
+    st.markdown('<h2 class="section-header">Export Options</h2>', unsafe_allow_html=True)
     
     if st.button("Export as CSV"):
         # Prepare data for CSV
@@ -416,44 +380,38 @@ if st.session_state.translations:
             mime="text/csv"
         )
 
-# Add information about the translation engine
-with st.expander("About the Translation Engine"):
-    st.markdown("""
-    ### Claude AI Translation
-    
-    This application uses Anthropic's Claude AI for high-quality translations:
-    
-    - **Advanced AI Understanding**: Claude understands context and nuances in language
-    - **Better Literary Translation**: More accurate for poetry and literature than generic translation engines
-    - **Cultural Context Awareness**: Understands cultural references in Bengali literature
-    
-    For best results:
-    
-    - Provide complete sentences for better context
-    - For poetry, translate stanza by stanza
-    - The API processes each translation request securely
-    """)
-
-# Add help
+# Add help with proper styling
 with st.expander("Help & Information"):
     st.markdown("""
     ### How to use this tool
     
-    1. **Enter your Claude API key** in the settings panel
-    2. **Paste Bengali text** in the input area
-    3. Click the **Translate** button
-    4. Choose between **Line-by-Line** or **Word-by-Word** view
-    5. Use the **audio controls** to listen to Bengali pronunciation
-    6. **Export** your translations as needed
+    1. **Paste Bengali text** in the input area
+    2. Click the **Translate** button
+    3. Choose between **Line-by-Line** or **Word-by-Word** view
+    4. Use the **audio controls** to listen to Bengali pronunciation
+    5. **Export** your translations as needed
     
     ### Features
     
-    - High-quality translation from Bengali to Hindi using Claude AI
+    - Translation from Bengali to Hindi
     - Audio playback for Bengali text
     - Word-by-word breakdown option
     - Export functionality
+    
+    ### Sample Bengali Text
+    
+    Try this sample poem by Rabindranath Tagore:
+    
+    ```
+    আকাশ ভরা সূর্য তারা,
+    বিশ্ব ভরা প্রাণ
+    তাহারি মাঝখানে আমি
+    পেয়েছি মোর স্থান।
+
+    বিস্ময়ে তাই জাগে আমার গান।
+    ```
     """)
 
-# Add footer
-st.markdown("---")
-st.markdown("*Bengali to Hindi Translator Tool powered by Claude AI*")
+# Add footer with explicit styling
+st.markdown('<hr style="margin-top: 30px; margin-bottom: 10px;">', unsafe_allow_html=True)
+st.markdown('<p style="color: #000000; text-align: center;">Bengali to Hindi Translator Tool</p>', unsafe_allow_html=True)
